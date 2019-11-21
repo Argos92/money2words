@@ -1,181 +1,218 @@
 package com.github.onotoliy.money2words;
 
-public class Money2Words {
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-    public String numberOfWord(char[] symbols) {
-        StringBuilder word = new StringBuilder();
+/**
+ * Преобразование денег в письменную форму. Базоый класс.
+ *
+ * @author Anatoliy Pokhresnyi
+ */
+public abstract class Money2Words {
 
-        for (int i = 0 ; i < symbols.length; i = i + 3) {
-            char util = symbols[i + 2];
-            char decade = symbols[i + 1];
-            char hundred = symbols[i];
+    /**
+     * Числительные.
+     */
+    private final List<Measure> measures;
 
-            boolean isHundred = symbols.length - i > 3 && symbols.length - i < 7;
+    /**
+     * Валюта.
+     */
+    private final Wallet wallet;
 
-            word.append(" ")
-                .append(hundredNumberOfWord(hundred))
-                .append(" ")
-                .append(decadeNumberOfWord(decade, util, isHundred))
-                .append(" ")
-                .append(measureOfWord(decade, util, isHundred, symbols.length - i));
-        }
-
-        return word.toString()
-                   .trim()
-                   .replaceAll(" {2}", " ");
+    /**
+     * Кноструктор.
+     *
+     * @param aMeasures Числительные.
+     * @param aWallet Валюта.
+     */
+    protected Money2Words(final List<Measure> aMeasures, final Wallet aWallet) {
+        this.measures = aMeasures;
+        this.wallet = aWallet;
     }
 
-    private String utilNumberOfWord(char symbol, boolean female) {
-        switch (symbol) {
-            case '1':
-                return female ? "одна" : "один";
-            case '2':
-                return female ? "две" : "два";
-            case '3':
-                return "три";
-            case '4':
-                return "четыре";
-            case '5':
-                return "пять";
-            case '6':
-                return "шесть";
-            case '7':
-                return "семь";
-            case '8':
-                return "восемь";
-            case '9':
-                return "девять";
-            default:
-                return "";
-        }
+    /**
+     * Преобразвание в письменый формат.
+     *
+     * @param util Разрад числа. Единица.
+     * @param decade Разряд числа. Десяток.
+     * @param hundred Разряд числа. Сотня.
+     * @param degree Степень.
+     * @return Письменый формат.
+     */
+    protected abstract String wrap(char util,
+                                   char decade,
+                                   char hundred,
+                                   int degree);
+
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final int money) {
+        return wrap(new BigDecimal(money));
     }
 
-    private String decadeNumberOfWord(char decade, char util, boolean female) {
-        if (decade == '1') {
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final long money) {
+        return wrap(new BigDecimal(money));
+    }
 
-            if (util == '0') {
-                return "десять";
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final float money) {
+        return wrap(new BigDecimal(money));
+    }
+
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final double money) {
+        return wrap(new BigDecimal(money));
+    }
+
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final String money) {
+        Objects.requireNonNull(money);
+
+        return wrap(new BigDecimal(money));
+    }
+
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final BigDecimal money) {
+        Objects.requireNonNull(money);
+
+        String[] parts = money.setScale(2, RoundingMode.HALF_DOWN)
+                              .toPlainString()
+                              .split("\\.");
+
+        StringBuilder whole = new StringBuilder(parts[0]);
+
+        while (whole.length() % DegreeMeasure.HUNDRED != 0) {
+            whole.insert(0, "*");
+        }
+
+        return wrap(whole.toString().toCharArray(), parts[1].toCharArray());
+    }
+
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param money Число.
+     * @return Письменый формат.
+     */
+    public String wrap(final BigInteger money) {
+        Objects.requireNonNull(money);
+
+        return wrap(new BigDecimal(money));
+    }
+
+    /**
+     * Преобразвание числа в письменый формат.
+     *
+     * @param whole Целая часть.
+     * @param fractional Дробная часть.
+     * @return Письменый формат.
+     */
+    private String wrap(final char[] whole, final char[] fractional) {
+        int wLength = whole.length;
+        List<String> words = new LinkedList<>();
+
+        for (int i = 0; i < wLength; i = i + DegreeMeasure.HUNDRED) {
+            char util = whole[i + 2];
+            char decade = whole[i + 1];
+            char hundred = whole[i];
+
+            if (hundred == '0' && decade == '0' && util == '0') {
+                continue;
             }
 
-            if (util == '2') {
-                return "двенадцать";
-            }
-
-            if (util == '4') {
-                return "четырнадцать";
-            }
-
-            if (util == '6') {
-                return "четырнадцать";
-            }
-
-            return utilNumberOfWord(util, false) + "надцать";
+            words.add(wrap(hundred, decade, util, wLength - i));
         }
 
-        String utilNumberOfWord = utilNumberOfWord(util, female);
+        words.add(wallet.wrapMoney(whole[wLength - 2], whole[wLength - 1]));
+        words.add(wrapCoin(fractional));
+        words.add(wallet.wrapCoin(fractional[0], fractional[1]));
 
-        if (decade == '*') {
-            return utilNumberOfWord;
-        }
-
-        if (decade == '4') {
-            return "сорок " + utilNumberOfWord;
-        }
-
-        if (decade == '9') {
-            return "девяносто " + utilNumberOfWord;
-        }
-
-        return utilNumberOfWord(decade, false) + "дцать " + utilNumberOfWord;
+        return concat(words);
     }
 
-    private String hundredNumberOfWord(char symbol) {
-        if (symbol == '*') {
-            return "";
+    /**
+     * Преобразование монет в правильную форму.
+     *
+     * @param fractional Дробная часть.
+     * @return Правильная форма.
+     */
+    private String wrapCoin(final char[] fractional) {
+        if (fractional[0] == '0' && fractional[1] == '0') {
+            return "0";
         }
 
-        if (symbol == '1') {
-            return "сто";
-        }
-
-        if (symbol == '2') {
-            return "двести";
-        }
-
-        if (symbol == '3' || symbol == '4') {
-            return utilNumberOfWord(symbol, false) + "сто";
-        }
-
-        return utilNumberOfWord(symbol, false) + "сот";
+        return fractional[0] == '0'
+            ? String.valueOf(fractional[1])
+            : fractional[0] + "" + fractional[1];
     }
 
-    private String measureOfWord(char decade, char util, boolean isHundred, int length) {
-        if (length < 4) {
-            return "";
-        }
-
-        String measure = measureOfWord(length);
-
-        if (decade == '1') {
-            return isHundred ? measure : measure + "ов";
-        }
-
-        if (util == '1') {
-            return isHundred ? measure + "а" : measure;
-        }
-
-        if (util == '2' || util == '3' || util == '4' || util == '5') {
-            return isHundred ? measure + "и" : measure + "а";
-        }
-
-        return isHundred ? measure : measure + "ов";
+    /**
+     * Преобразование числа в письменый формат числительного.
+     *
+     * @param decade Разряд числа. Десяток.
+     * @param util Разрад числа. Единица.
+     * @param degree Степень.
+     * @return Письменый формат.
+     */
+    protected String wrapMeasure(final char decade,
+                                 final char util,
+                                 final int degree) {
+        return measures.stream()
+                       .filter(value -> value.verify(degree))
+                       .findFirst()
+                       .map(value -> value.wrap(decade, util, degree))
+                       .orElse("");
     }
 
-    private String measureOfWord(int length) {
-        if (length < 7) {
-            return "тысяч";
-        }
-
-        if (length < 10) {
-            return "миллион";
-        }
-
-        if (length < 13) {
-            return "миллиард";
-        }
-
-        if (length < 16) {
-            return "триллион";
-        }
-
-        if (length < 19) {
-            return "квадриллион";
-        }
-
-        if (length < 22) {
-            return "квинтиллион";
-        }
-
-        if (length < 25) {
-            return "секстиллион";
-        }
-
-        if (length < 28) {
-            return "септиллион";
-        }
-
-        if (length < 31) {
-            return "октиллион";
-        }
-
-        if (length < 34) {
-            return "нониллион";
-        }
-
-        if (length < 37) {
-            return "дециллион";
-        }
-
-        throw new IllegalArgumentException();
+    /**
+     * Склеивание массива.
+     *
+     * @param values Массив.
+     * @return Результат склеивания.
+     */
+    protected String concat(final Collection<String> values) {
+        return values.stream()
+                     .filter(Objects::nonNull)
+                     .filter(Predicate.not(String::isEmpty))
+                     .collect(Collectors.joining(" "));
     }
 }
