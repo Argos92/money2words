@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'maven'
     id 'jacoco'
-//    id 'checkstyle'
+    id 'checkstyle'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
 }
@@ -16,7 +16,7 @@ apply plugin: 'pmd'
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'jacoco'
-//apply plugin: 'checkstyle'
+apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
@@ -44,7 +44,7 @@ dependencies {
 publishing {
     repositories {
         maven {
-            url  = 'https://dl.bintray.com/a-k-pohresniy/fuzzy-controller'
+            url  = 'https://dl.bintray.com/a-k-pohresniy/money2words'
         }
     }
 
@@ -71,7 +71,7 @@ bintray {
         name = 'fuzzy-controller'
         userOrg = 'a-k-pohresniy'
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/onotoliy/fuzzy-controller.git'
+        vcsUrl = 'https://github.com/onotoliy/money2words.git'
     }
     version {
         name = project.version
@@ -89,18 +89,18 @@ javadoc {
     options.encoding = 'UTF-8'
 }
 
-//checkstyle {
-//    toolVersion '7.8.1'
-//    configFile file('checkstyle.xml')
-//}
+checkstyle {
+    toolVersion '7.8.1'
+    configFile file('checkstyle.xml')
+}
 
-//checkstyleMain {
-//    source = sourceSets.main.allJava
-//}
+checkstyleMain {
+    source = sourceSets.main.allJava
+}
 
-//checkstyleTest {
-//    source = sourceSets.main.allJava
-//}
+checkstyleTest {
+    source = sourceSets.main.allJava
+}
 
 pmd {
     rulePriority 1
@@ -134,7 +134,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'INSTRUCTION'
                 value = 'COVEREDRATIO'
-                minimum = 0.7
+                minimum = 0.9
             }
         }
     }
