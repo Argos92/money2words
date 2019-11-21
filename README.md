@@ -14,7 +14,7 @@ repositories {
 
 
 dependencies {
-    compile 'com.github.onotoliy:fuzzy-controller:1.0.0'
+    compile 'com.github.onotoliy:money2words:1.0.0'
 }
 ```
 
@@ -41,15 +41,8 @@ dependencies {
 
 <dependency>
     <groupId>com.github.onotoliy</groupId>
-    <artifactId>fuzzy-controller</artifactId>
+    <artifactId>money2words</artifactId>
     <version>1.0.0</version>
-    <type>jar</type>
+    <type>pom</type>
 </dependency>
 ```
-
-#### Примеры использования
-+ [Алгоритм Ларсена](https://github.com/onotoliy/fuzzy-controller/blob/master/src/test/java/com/github/onotoliy/fuzzycontroller/algorithms/LarsenBuilderTest.java)
-+ [Алгоритм Мамдани](https://github.com/onotoliy/fuzzy-controller/blob/master/src/test/java/com/github/onotoliy/fuzzycontroller/algorithms/MamdaniBuilderTest.java)
-+ [Алгоритм Сугено](https://github.com/onotoliy/fuzzy-controller/blob/master/src/test/java/com/github/onotoliy/fuzzycontroller/algorithms/SugenoBuilderTest.java)
-+ [Алгоритм Цукамото](https://github.com/onotoliy/fuzzy-controller/blob/master/src/test/java/com/github/onotoliy/fuzzycontroller/algorithms/TsukamotoBuilderTest.java)
-+ [Упрощенный алгоритм нечеткого вывода](https://github.com/onotoliy/fuzzy-controller/blob/master/src/test/java/com/github/onotoliy/fuzzycontroller/algorithms/SimplifiedAlgorithmBuilderTest.java)
