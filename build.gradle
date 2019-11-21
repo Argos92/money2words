@@ -68,7 +68,7 @@ bintray {
     publish = true
     pkg {
         repo = 'onotoliy'
-        name = 'fuzzy-controller'
+        name = 'money2words'
         userOrg = 'a-k-pohresniy'
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/onotoliy/money2words.git'
